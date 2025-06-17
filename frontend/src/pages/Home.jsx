@@ -1,21 +1,24 @@
-import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import axios from 'axios';
-import { Search, Star, Clock, Truck, ArrowRight, ChefHat } from 'lucide-react';
+import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import { motion } from "framer-motion";
+import axios from "axios";
+import { Search, Star, Clock, Truck, ArrowRight, ChefHat } from "lucide-react";
 
 const Home = () => {
   const [featuredRestaurants, setFeaturedRestaurants] = useState([]);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchFeaturedRestaurants = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/restaurants?sortBy=rating');
+        const baseUrl = import.meta.env.VITE_API_BASE_URL;
+        const response = await axios.get(
+          `${baseUrl}/restaurants?sortBy=rating`
+        );
         setFeaturedRestaurants(response.data.slice(0, 6));
       } catch (error) {
-        console.error('Error fetching restaurants:', error);
+        console.error("Error fetching restaurants:", error);
       } finally {
         setLoading(false);
       }
@@ -25,12 +28,12 @@ const Home = () => {
   }, []);
 
   const cuisineTypes = [
-    { name: 'Italian', emoji: '🍝', color: 'from-red-500 to-orange-500' },
-    { name: 'Chinese', emoji: '🥢', color: 'from-yellow-500 to-red-500' },
-    { name: 'Mexican', emoji: '🌮', color: 'from-green-500 to-yellow-500' },
-    { name: 'Indian', emoji: '🍛', color: 'from-orange-500 to-red-500' },
-    { name: 'Thai', emoji: '🍜', color: 'from-green-500 to-blue-500' },
-    { name: 'American', emoji: '🍔', color: 'from-blue-500 to-purple-500' }
+    { name: "Italian", emoji: "🍝", color: "from-red-500 to-orange-500" },
+    { name: "Chinese", emoji: "🥢", color: "from-yellow-500 to-red-500" },
+    { name: "Mexican", emoji: "🌮", color: "from-green-500 to-yellow-500" },
+    { name: "Indian", emoji: "🍛", color: "from-orange-500 to-red-500" },
+    { name: "Thai", emoji: "🍜", color: "from-green-500 to-blue-500" },
+    { name: "American", emoji: "🍔", color: "from-blue-500 to-purple-500" },
   ];
 
   return (
@@ -38,7 +41,7 @@ const Home = () => {
       {/* Hero Section */}
       <section className="relative min-h-screen flex items-center justify-center bg-pattern overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-orange-500/10 via-transparent to-amber-500/10"></div>
-        
+
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -53,7 +56,8 @@ const Home = () => {
                 <span className="text-gray-800">Delivered Fast</span>
               </h1>
               <p className="text-xl md:text-2xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
-                Experience the finest local restaurants and cuisines, delivered fresh to your doorstep in minutes.
+                Experience the finest local restaurants and cuisines, delivered
+                fresh to your doorstep in minutes.
               </p>
             </div>
 
@@ -76,12 +80,12 @@ const Home = () => {
                   className="w-full pl-14 pr-6 py-4 bg-white/90 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 focus:outline-none focus:ring-4 focus:ring-orange-500/20 focus:border-orange-500 text-lg"
                 />
                 <Link
-                  to={`/restaurants${searchQuery ? `?search=${searchQuery}` : ''}`}
+                  to={`/restaurants${
+                    searchQuery ? `?search=${searchQuery}` : ""
+                  }`}
                   className="absolute inset-y-0 right-0 pr-2 flex items-center"
                 >
-                  <button className="btn-primary">
-                    Search
-                  </button>
+                  <button className="btn-primary">Search</button>
                 </Link>
               </div>
             </motion.div>
@@ -125,7 +129,7 @@ const Home = () => {
                 delay: Math.random() * 2,
               }}
             >
-              {['🍕', '🍔', '🍜', '🍣', '🌮', '🍰'][i]}
+              {["🍕", "🍔", "🍜", "🍣", "🌮", "🍰"][i]}
             </motion.div>
           ))}
         </div>
@@ -189,14 +193,18 @@ const Home = () => {
               Featured Restaurants
             </h2>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Top-rated restaurants in your area, handpicked for quality and taste
+              Top-rated restaurants in your area, handpicked for quality and
+              taste
             </p>
           </motion.div>
 
           {loading ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {[...Array(6)].map((_, i) => (
-                <div key={i} className="glass-card rounded-2xl p-6 animate-pulse">
+                <div
+                  key={i}
+                  className="glass-card rounded-2xl p-6 animate-pulse"
+                >
                   <div className="h-48 bg-gray-200 rounded-xl mb-4"></div>
                   <div className="h-6 bg-gray-200 rounded mb-2"></div>
                   <div className="h-4 bg-gray-200 rounded mb-4 w-3/4"></div>
@@ -222,21 +230,21 @@ const Home = () => {
                     <div className="glass-card rounded-2xl overflow-hidden group">
                       <div className="relative h-48 bg-gradient-to-br from-orange-400 to-amber-400 flex items-center justify-center">
                         <div className="text-6xl opacity-50">
-                          {restaurant.cuisine?.[0] === 'Italian' && '🍝'}
-                          {restaurant.cuisine?.[0] === 'Chinese' && '🥢'}
-                          {restaurant.cuisine?.[0] === 'Mexican' && '🌮'}
-                          {restaurant.cuisine?.[0] === 'Indian' && '🍛'}
-                          {restaurant.cuisine?.[0] === 'Thai' && '🍜'}
-                          {!restaurant.cuisine?.[0] && '🍽️'}
+                          {restaurant.cuisine?.[0] === "Italian" && "🍝"}
+                          {restaurant.cuisine?.[0] === "Chinese" && "🥢"}
+                          {restaurant.cuisine?.[0] === "Mexican" && "🌮"}
+                          {restaurant.cuisine?.[0] === "Indian" && "🍛"}
+                          {restaurant.cuisine?.[0] === "Thai" && "🍜"}
+                          {!restaurant.cuisine?.[0] && "🍽️"}
                         </div>
                         <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm rounded-full px-3 py-1 flex items-center space-x-1">
                           <Star className="h-4 w-4 text-yellow-500 fill-current" />
                           <span className="text-sm font-semibold">
-                            {restaurant.rating?.toFixed(1) || '4.5'}
+                            {restaurant.rating?.toFixed(1) || "4.5"}
                           </span>
                         </div>
                       </div>
-                      
+
                       <div className="p-6">
                         <h3 className="text-xl font-bold mb-2 group-hover:text-orange-600 transition-colors duration-300">
                           {restaurant.name}
@@ -244,12 +252,13 @@ const Home = () => {
                         <p className="text-gray-600 mb-4 line-clamp-2">
                           {restaurant.description}
                         </p>
-                        
+
                         <div className="flex items-center justify-between text-sm text-gray-500">
                           <div className="flex items-center space-x-1">
                             <Clock className="h-4 w-4" />
                             <span>
-                              {restaurant.deliveryTime?.min || 25}-{restaurant.deliveryTime?.max || 35} min
+                              {restaurant.deliveryTime?.min || 25}-
+                              {restaurant.deliveryTime?.max || 35} min
                             </span>
                           </div>
                           <div className="flex items-center space-x-1">
@@ -257,7 +266,7 @@ const Home = () => {
                             <span>₹{restaurant.deliveryFee || 49}</span>
                           </div>
                         </div>
-                        
+
                         <div className="flex flex-wrap gap-2 mt-4">
                           {restaurant.cuisine?.slice(0, 2).map((type) => (
                             <span
@@ -283,7 +292,10 @@ const Home = () => {
             viewport={{ once: true }}
             className="text-center mt-12"
           >
-            <Link to="/restaurants" className="btn-primary text-lg px-8 py-4 inline-flex items-center">
+            <Link
+              to="/restaurants"
+              className="btn-primary text-lg px-8 py-4 inline-flex items-center"
+            >
               View All Restaurants
               <ArrowRight className="ml-2 h-5 w-5" />
             </Link>
@@ -312,23 +324,26 @@ const Home = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {[
               {
-                icon: '🚀',
-                title: 'Fast Delivery',
-                description: 'Get your favorite food delivered in 30 minutes or less',
-                color: 'from-blue-500 to-purple-500'
+                icon: "🚀",
+                title: "Fast Delivery",
+                description:
+                  "Get your favorite food delivered in 30 minutes or less",
+                color: "from-blue-500 to-purple-500",
               },
               {
-                icon: '🍯',
-                title: 'Fresh & Quality',
-                description: 'We partner with the best restaurants to ensure top quality',
-                color: 'from-green-500 to-teal-500'
+                icon: "🍯",
+                title: "Fresh & Quality",
+                description:
+                  "We partner with the best restaurants to ensure top quality",
+                color: "from-green-500 to-teal-500",
               },
               {
-                icon: '💝',
-                title: 'Best Deals',
-                description: 'Enjoy exclusive discounts and offers on your favorite meals',
-                color: 'from-pink-500 to-red-500'
-              }
+                icon: "💝",
+                title: "Best Deals",
+                description:
+                  "Enjoy exclusive discounts and offers on your favorite meals",
+                color: "from-pink-500 to-red-500",
+              },
             ].map((feature, index) => (
               <motion.div
                 key={feature.title}

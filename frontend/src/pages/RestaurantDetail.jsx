@@ -1,9 +1,19 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import axios from 'axios';
-import { useCart } from '../contexts/CartContext';
-import { Star, Clock, Truck, MapPin, Phone, Plus, Minus, ShoppingCart, Check } from 'lucide-react';
+import React, { useState, useEffect } from "react";
+import { useParams, Link } from "react-router-dom";
+import { motion } from "framer-motion";
+import axios from "axios";
+import { useCart } from "../contexts/CartContext";
+import {
+  Star,
+  Clock,
+  Truck,
+  MapPin,
+  Phone,
+  Plus,
+  Minus,
+  ShoppingCart,
+  Check,
+} from "lucide-react";
 
 const RestaurantDetail = () => {
   const { id } = useParams();
@@ -11,11 +21,18 @@ const RestaurantDetail = () => {
   const [restaurant, setRestaurant] = useState(null);
   const [menuItems, setMenuItems] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [selectedCategory, setSelectedCategory] = useState('all');
+  const [selectedCategory, setSelectedCategory] = useState("all");
   const [quantities, setQuantities] = useState({});
   const [addedToCart, setAddedToCart] = useState({});
 
-  const categories = ['all', 'appetizer', 'main', 'dessert', 'beverage', 'special'];
+  const categories = [
+    "all",
+    "appetizer",
+    "main",
+    "dessert",
+    "beverage",
+    "special",
+  ];
 
   useEffect(() => {
     fetchRestaurantData();
@@ -24,23 +41,27 @@ const RestaurantDetail = () => {
   const fetchRestaurantData = async () => {
     try {
       setLoading(true);
+
+      const baseUrl = import.meta.env.VITE_API_BASE_URL;
+
       const [restaurantRes, menuRes] = await Promise.all([
-        axios.get(`http://localhost:5000/api/restaurants/${id}`),
-        axios.get(`http://localhost:5000/api/restaurants/${id}/menu`)
+        axios.get(`${baseUrl}/restaurants/${id}`),
+        axios.get(`${baseUrl}/restaurants/${id}/menu`),
       ]);
-      
+
       setRestaurant(restaurantRes.data);
       setMenuItems(menuRes.data);
     } catch (error) {
-      console.error('Error fetching restaurant data:', error);
+      console.error("Error fetching restaurant data:", error);
     } finally {
       setLoading(false);
     }
   };
 
-  const filteredMenuItems = selectedCategory === 'all' 
-    ? menuItems 
-    : menuItems.filter(item => item.category === selectedCategory);
+  const filteredMenuItems =
+    selectedCategory === "all"
+      ? menuItems
+      : menuItems.filter((item) => item.category === selectedCategory);
 
   const groupedMenuItems = filteredMenuItems.reduce((acc, item) => {
     if (!acc[item.category]) {
@@ -51,33 +72,33 @@ const RestaurantDetail = () => {
   }, {});
 
   const updateQuantity = (itemId, change) => {
-    setQuantities(prev => ({
+    setQuantities((prev) => ({
       ...prev,
-      [itemId]: Math.max(0, (prev[itemId] || 0) + change)
+      [itemId]: Math.max(0, (prev[itemId] || 0) + change),
     }));
   };
 
   const handleAddToCart = (item) => {
     const quantity = quantities[item._id] || 1;
     addToCart(item, quantity);
-    setQuantities(prev => ({ ...prev, [item._id]: 0 }));
-    
+    setQuantities((prev) => ({ ...prev, [item._id]: 0 }));
+
     // Show success feedback
-    setAddedToCart(prev => ({ ...prev, [item._id]: true }));
+    setAddedToCart((prev) => ({ ...prev, [item._id]: true }));
     setTimeout(() => {
-      setAddedToCart(prev => ({ ...prev, [item._id]: false }));
+      setAddedToCart((prev) => ({ ...prev, [item._id]: false }));
     }, 2000);
   };
 
   const getCategoryEmoji = (category) => {
     const emojis = {
-      appetizer: '🥗',
-      main: '🍽️',
-      dessert: '🍰',
-      beverage: '🥤',
-      special: '⭐'
+      appetizer: "🥗",
+      main: "🍽️",
+      dessert: "🍰",
+      beverage: "🥤",
+      special: "⭐",
     };
-    return emojis[category] || '🍴';
+    return emojis[category] || "🍴";
   };
 
   if (loading) {
@@ -104,7 +125,9 @@ const RestaurantDetail = () => {
       <div className="pt-16 min-h-screen bg-gradient-to-br from-orange-50 via-white to-orange-50 flex items-center justify-center">
         <div className="text-center">
           <div className="text-6xl mb-4">🍽️</div>
-          <h2 className="text-2xl font-bold text-gray-700 mb-2">Restaurant not found</h2>
+          <h2 className="text-2xl font-bold text-gray-700 mb-2">
+            Restaurant not found
+          </h2>
           <Link to="/restaurants" className="btn-primary">
             Back to Restaurants
           </Link>
@@ -131,7 +154,7 @@ const RestaurantDetail = () => {
               <p className="text-xl text-gray-600 mb-6 leading-relaxed">
                 {restaurant.description}
               </p>
-              
+
               <div className="flex flex-wrap gap-6 mb-6">
                 <div className="flex items-center space-x-2">
                   <div className="bg-yellow-100 p-2 rounded-xl">
@@ -139,26 +162,27 @@ const RestaurantDetail = () => {
                   </div>
                   <div>
                     <div className="font-semibold">
-                      {restaurant.rating?.toFixed(1) || '4.5'} Rating
+                      {restaurant.rating?.toFixed(1) || "4.5"} Rating
                     </div>
                     <div className="text-sm text-gray-500">
                       {restaurant.reviewCount || 150}+ reviews
                     </div>
                   </div>
                 </div>
-                
+
                 <div className="flex items-center space-x-2">
                   <div className="bg-blue-100 p-2 rounded-xl">
                     <Clock className="h-5 w-5 text-blue-600" />
                   </div>
                   <div>
                     <div className="font-semibold">
-                      {restaurant.deliveryTime?.min || 25}-{restaurant.deliveryTime?.max || 35} min
+                      {restaurant.deliveryTime?.min || 25}-
+                      {restaurant.deliveryTime?.max || 35} min
                     </div>
                     <div className="text-sm text-gray-500">Delivery time</div>
                   </div>
                 </div>
-                
+
                 <div className="flex items-center space-x-2">
                   <div className="bg-green-100 p-2 rounded-xl">
                     <Truck className="h-5 w-5 text-green-600" />
@@ -171,7 +195,7 @@ const RestaurantDetail = () => {
                   </div>
                 </div>
               </div>
-              
+
               <div className="flex flex-wrap gap-2 mb-6">
                 {restaurant.cuisine?.map((type) => (
                   <span
@@ -182,28 +206,29 @@ const RestaurantDetail = () => {
                   </span>
                 ))}
               </div>
-              
+
               {restaurant.address && (
                 <div className="flex items-center space-x-2 text-gray-600">
                   <MapPin className="h-5 w-5" />
                   <span>
-                    {restaurant.address.street}, {restaurant.address.city}, {restaurant.address.state}
+                    {restaurant.address.street}, {restaurant.address.city},{" "}
+                    {restaurant.address.state}
                   </span>
                 </div>
               )}
             </div>
-            
+
             <div className="lg:ml-8 mt-6 lg:mt-0">
               <div className="w-64 h-64 bg-gradient-to-br from-orange-400 to-amber-400 rounded-2xl flex items-center justify-center">
                 <div className="text-8xl opacity-50">
-                  {restaurant.cuisine?.[0] === 'Italian' && '🍝'}
-                  {restaurant.cuisine?.[0] === 'Chinese' && '🥢'}
-                  {restaurant.cuisine?.[0] === 'Mexican' && '🌮'}
-                  {restaurant.cuisine?.[0] === 'Indian' && '🍛'}
-                  {restaurant.cuisine?.[0] === 'Thai' && '🍜'}
-                  {restaurant.cuisine?.[0] === 'Japanese' && '🍣'}
-                  {restaurant.cuisine?.[0] === 'American' && '🍔'}
-                  {!restaurant.cuisine?.[0] && '🍽️'}
+                  {restaurant.cuisine?.[0] === "Italian" && "🍝"}
+                  {restaurant.cuisine?.[0] === "Chinese" && "🥢"}
+                  {restaurant.cuisine?.[0] === "Mexican" && "🌮"}
+                  {restaurant.cuisine?.[0] === "Indian" && "🍛"}
+                  {restaurant.cuisine?.[0] === "Thai" && "🍜"}
+                  {restaurant.cuisine?.[0] === "Japanese" && "🍣"}
+                  {restaurant.cuisine?.[0] === "American" && "🍔"}
+                  {!restaurant.cuisine?.[0] && "🍽️"}
                 </div>
               </div>
             </div>
@@ -224,11 +249,13 @@ const RestaurantDetail = () => {
                 onClick={() => setSelectedCategory(category)}
                 className={`px-6 py-3 rounded-xl font-medium transition-all duration-200 ${
                   selectedCategory === category
-                    ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow-lg'
-                    : 'bg-white/80 text-gray-700 hover:bg-white hover:shadow-lg'
+                    ? "bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow-lg"
+                    : "bg-white/80 text-gray-700 hover:bg-white hover:shadow-lg"
                 }`}
               >
-                {category === 'all' ? 'All Items' : category.charAt(0).toUpperCase() + category.slice(1)}
+                {category === "all"
+                  ? "All Items"
+                  : category.charAt(0).toUpperCase() + category.slice(1)}
               </button>
             ))}
           </div>
@@ -236,139 +263,143 @@ const RestaurantDetail = () => {
 
         {/* Menu Items */}
         <div className="space-y-12">
-          {Object.entries(groupedMenuItems).map(([category, items], categoryIndex) => (
-            <motion.div
-              key={category}
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: categoryIndex * 0.1 }}
-            >
-              <div className="flex items-center space-x-3 mb-6">
-                <div className="text-3xl">{getCategoryEmoji(category)}</div>
-                <h2 className="text-2xl font-bold text-gray-800">
-                  {category.charAt(0).toUpperCase() + category.slice(1)}
-                </h2>
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {items.map((item, index) => (
-                  <motion.div
-                    key={item._id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: index * 0.05 }}
-                    className="glass-card rounded-2xl p-6 floating-card group"
-                  >
-                    <div className="flex justify-between items-start mb-4">
-                      <div className="flex-1">
-                        <h3 className="text-xl font-bold mb-2 group-hover:text-orange-600 transition-colors duration-300">
-                          {item.name}
-                        </h3>
-                        <p className="text-gray-600 mb-3 leading-relaxed">
-                          {item.description}
-                        </p>
-                        
-                        {item.ingredients && item.ingredients.length > 0 && (
-                          <div className="flex flex-wrap gap-1 mb-3">
-                            {item.ingredients.slice(0, 3).map((ingredient) => (
-                              <span
-                                key={ingredient}
-                                className="px-2 py-1 bg-gray-100 text-gray-600 rounded-full text-xs"
-                              >
-                                {ingredient}
-                              </span>
-                            ))}
-                            {item.ingredients.length > 3 && (
-                              <span className="px-2 py-1 bg-gray-100 text-gray-600 rounded-full text-xs">
-                                +{item.ingredients.length - 3} more
-                              </span>
-                            )}
-                          </div>
-                        )}
-                        
-                        {item.dietary && item.dietary.length > 0 && (
-                          <div className="flex flex-wrap gap-1 mb-3">
-                            {item.dietary.map((diet) => (
-                              <span
-                                key={diet}
-                                className="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium"
-                              >
-                                {diet}
-                              </span>
-                            ))}
-                          </div>
-                        )}
-                        
-                        <div className="flex items-center space-x-2 mb-3">
-                          <div className="text-2xl font-bold text-orange-600">
-                            ₹{item.price}
-                          </div>
-                          {item.rating && (
-                            <div className="flex items-center space-x-1">
-                              <Star className="h-4 w-4 text-yellow-500 fill-current" />
-                              <span className="text-sm text-gray-600">
-                                {item.rating.toFixed(1)} ({item.reviewCount})
-                              </span>
+          {Object.entries(groupedMenuItems).map(
+            ([category, items], categoryIndex) => (
+              <motion.div
+                key={category}
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: categoryIndex * 0.1 }}
+              >
+                <div className="flex items-center space-x-3 mb-6">
+                  <div className="text-3xl">{getCategoryEmoji(category)}</div>
+                  <h2 className="text-2xl font-bold text-gray-800">
+                    {category.charAt(0).toUpperCase() + category.slice(1)}
+                  </h2>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {items.map((item, index) => (
+                    <motion.div
+                      key={item._id}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.5, delay: index * 0.05 }}
+                      className="glass-card rounded-2xl p-6 floating-card group"
+                    >
+                      <div className="flex justify-between items-start mb-4">
+                        <div className="flex-1">
+                          <h3 className="text-xl font-bold mb-2 group-hover:text-orange-600 transition-colors duration-300">
+                            {item.name}
+                          </h3>
+                          <p className="text-gray-600 mb-3 leading-relaxed">
+                            {item.description}
+                          </p>
+
+                          {item.ingredients && item.ingredients.length > 0 && (
+                            <div className="flex flex-wrap gap-1 mb-3">
+                              {item.ingredients
+                                .slice(0, 3)
+                                .map((ingredient) => (
+                                  <span
+                                    key={ingredient}
+                                    className="px-2 py-1 bg-gray-100 text-gray-600 rounded-full text-xs"
+                                  >
+                                    {ingredient}
+                                  </span>
+                                ))}
+                              {item.ingredients.length > 3 && (
+                                <span className="px-2 py-1 bg-gray-100 text-gray-600 rounded-full text-xs">
+                                  +{item.ingredients.length - 3} more
+                                </span>
+                              )}
                             </div>
                           )}
+
+                          {item.dietary && item.dietary.length > 0 && (
+                            <div className="flex flex-wrap gap-1 mb-3">
+                              {item.dietary.map((diet) => (
+                                <span
+                                  key={diet}
+                                  className="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium"
+                                >
+                                  {diet}
+                                </span>
+                              ))}
+                            </div>
+                          )}
+
+                          <div className="flex items-center space-x-2 mb-3">
+                            <div className="text-2xl font-bold text-orange-600">
+                              ₹{item.price}
+                            </div>
+                            {item.rating && (
+                              <div className="flex items-center space-x-1">
+                                <Star className="h-4 w-4 text-yellow-500 fill-current" />
+                                <span className="text-sm text-gray-600">
+                                  {item.rating.toFixed(1)} ({item.reviewCount})
+                                </span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+
+                        <div className="w-24 h-24 bg-gradient-to-br from-orange-400 to-amber-400 rounded-xl flex items-center justify-center ml-4">
+                          <div className="text-3xl opacity-50">
+                            {getCategoryEmoji(item.category)}
+                          </div>
                         </div>
                       </div>
-                      
-                      <div className="w-24 h-24 bg-gradient-to-br from-orange-400 to-amber-400 rounded-xl flex items-center justify-center ml-4">
-                        <div className="text-3xl opacity-50">
-                          {getCategoryEmoji(item.category)}
+
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-3">
+                          <button
+                            onClick={() => updateQuantity(item._id, -1)}
+                            className="w-8 h-8 bg-gray-200 hover:bg-gray-300 rounded-full flex items-center justify-center transition-colors duration-200"
+                          >
+                            <Minus className="h-4 w-4" />
+                          </button>
+                          <span className="font-semibold text-lg min-w-[2rem] text-center">
+                            {quantities[item._id] || 0}
+                          </span>
+                          <button
+                            onClick={() => updateQuantity(item._id, 1)}
+                            className="w-8 h-8 bg-orange-500 hover:bg-orange-600 text-white rounded-full flex items-center justify-center transition-colors duration-200"
+                          >
+                            <Plus className="h-4 w-4" />
+                          </button>
                         </div>
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-3">
+
                         <button
-                          onClick={() => updateQuantity(item._id, -1)}
-                          className="w-8 h-8 bg-gray-200 hover:bg-gray-300 rounded-full flex items-center justify-center transition-colors duration-200"
+                          onClick={() => handleAddToCart(item)}
+                          disabled={!quantities[item._id]}
+                          className={`flex items-center space-x-2 px-4 py-2 rounded-xl font-medium transition-all duration-200 ${
+                            addedToCart[item._id]
+                              ? "bg-green-500 text-white"
+                              : quantities[item._id]
+                              ? "bg-gradient-to-r from-orange-500 to-amber-500 text-white hover:shadow-lg transform hover:-translate-y-1"
+                              : "bg-gray-200 text-gray-500 cursor-not-allowed"
+                          }`}
                         >
-                          <Minus className="h-4 w-4" />
-                        </button>
-                        <span className="font-semibold text-lg min-w-[2rem] text-center">
-                          {quantities[item._id] || 0}
-                        </span>
-                        <button
-                          onClick={() => updateQuantity(item._id, 1)}
-                          className="w-8 h-8 bg-orange-500 hover:bg-orange-600 text-white rounded-full flex items-center justify-center transition-colors duration-200"
-                        >
-                          <Plus className="h-4 w-4" />
+                          {addedToCart[item._id] ? (
+                            <>
+                              <Check className="h-4 w-4" />
+                              <span>Added!</span>
+                            </>
+                          ) : (
+                            <>
+                              <ShoppingCart className="h-4 w-4" />
+                              <span>Add to Cart</span>
+                            </>
+                          )}
                         </button>
                       </div>
-                      
-                      <button
-                        onClick={() => handleAddToCart(item)}
-                        disabled={!quantities[item._id]}
-                        className={`flex items-center space-x-2 px-4 py-2 rounded-xl font-medium transition-all duration-200 ${
-                          addedToCart[item._id]
-                            ? 'bg-green-500 text-white'
-                            : quantities[item._id]
-                            ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white hover:shadow-lg transform hover:-translate-y-1'
-                            : 'bg-gray-200 text-gray-500 cursor-not-allowed'
-                        }`}
-                      >
-                        {addedToCart[item._id] ? (
-                          <>
-                            <Check className="h-4 w-4" />
-                            <span>Added!</span>
-                          </>
-                        ) : (
-                          <>
-                            <ShoppingCart className="h-4 w-4" />
-                            <span>Add to Cart</span>
-                          </>
-                        )}
-                      </button>
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
-            </motion.div>
-          ))}
+                    </motion.div>
+                  ))}
+                </div>
+              </motion.div>
+            )
+          )}
         </div>
 
         {menuItems.length === 0 && (
@@ -378,8 +409,12 @@ const RestaurantDetail = () => {
             className="text-center py-16"
           >
             <div className="text-6xl mb-4">🍽️</div>
-            <h3 className="text-2xl font-bold text-gray-700 mb-2">No menu items available</h3>
-            <p className="text-gray-500">This restaurant hasn't added their menu yet.</p>
+            <h3 className="text-2xl font-bold text-gray-700 mb-2">
+              No menu items available
+            </h3>
+            <p className="text-gray-500">
+              This restaurant hasn't added their menu yet.
+            </p>
           </motion.div>
         )}
       </div>

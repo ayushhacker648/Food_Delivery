@@ -41,7 +41,9 @@ const Restaurants = () => {
       if (selectedCuisine) params.append('cuisine', selectedCuisine);
       if (sortBy) params.append('sortBy', sortBy);
 
-      const response = await axios.get(`http://localhost:5000/api/restaurants?${params}`);
+      const baseUrl = import.meta.env.VITE_API_BASE_URL;
+     const response = await axios.get(`${baseUrl}/restaurants?${params}`);
+
       setRestaurants(response.data);
     } catch (error) {
       console.error('Error fetching restaurants:', error);
@@ -54,7 +56,9 @@ const Restaurants = () => {
     if (restaurantMenus[restaurantId]) return; // Already fetched
     
     try {
-      const response = await axios.get(`http://localhost:5000/api/restaurants/${restaurantId}/menu`);
+      const baseUrl = import.meta.env.VITE_API_BASE_URL;
+const response = await axios.get(`${baseUrl}/restaurants/${restaurantId}/menu`);
+
       setRestaurantMenus(prev => ({
         ...prev,
         [restaurantId]: response.data.slice(0, 4) // Show only first 4 items

@@ -1,13 +1,26 @@
-import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { useCart } from '../contexts/CartContext';
-import { useAuth } from '../contexts/AuthContext';
-import { Plus, Minus, Trash2, ShoppingBag, ArrowRight, CreditCard } from 'lucide-react';
-import axios from 'axios';
+import React from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
+import { useCart } from "../contexts/CartContext";
+import { useAuth } from "../contexts/AuthContext";
+import {
+  Plus,
+  Minus,
+  Trash2,
+  ShoppingBag,
+  ArrowRight,
+  CreditCard,
+} from "lucide-react";
+import axios from "axios";
 
 const Cart = () => {
-  const { cartItems, updateQuantity, removeFromCart, getTotalPrice, clearCart } = useCart();
+  const {
+    cartItems,
+    updateQuantity,
+    removeFromCart,
+    getTotalPrice,
+    clearCart,
+  } = useCart();
   const { user } = useAuth();
   const navigate = useNavigate();
 
@@ -18,7 +31,7 @@ const Cart = () => {
 
   const handleCheckout = async () => {
     if (!user) {
-      navigate('/login');
+      navigate("/login");
       return;
     }
 
@@ -26,53 +39,58 @@ const Cart = () => {
       // Prepare payment data
       const paymentData = {
         amount: total,
-        currency: 'INR',
-        paymentMethod: 'card', // Default to card payment
+        currency: "INR",
+        paymentMethod: "card", // Default to card payment
         customerInfo: {
           id: user.id,
           name: user.name,
-          email: user.email
+          email: user.email,
         },
         orderData: {
-          items: cartItems.map(item => ({
+          items: cartItems.map((item) => ({
             id: item._id,
             name: item.name,
             price: item.price,
             quantity: item.quantity,
-            total: item.price * item.quantity
+            total: item.price * item.quantity,
           })),
           subtotal: subtotal,
           deliveryFee: deliveryFee,
           tax: tax,
           total: total,
-          itemCount: cartItems.length
-        }
+          itemCount: cartItems.length,
+        },
       };
 
-      console.log('🛒 Processing checkout with data:', paymentData);
+      console.log("🛒 Processing checkout with data:", paymentData);
 
       // Send payment data to server
-      const response = await axios.post('http://localhost:5000/api/payment/process', paymentData);
+      const baseUrl = import.meta.env.VITE_API_BASE_URL;
+      const response = await axios.post(
+        `${baseUrl}/payment/process`,
+        paymentData
+      );
 
       if (response.data.success) {
-        console.log('✅ Payment successful:', response.data.payment);
-        
+        console.log("✅ Payment successful:", response.data.payment);
+
         // Show success message
-        alert(`Payment successful! Transaction ID: ${response.data.payment.transactionId}`);
-        
+        alert(
+          `Payment successful! Transaction ID: ${response.data.payment.transactionId}`
+        );
+
         // Clear cart after successful payment
         clearCart();
-        
-        // Navigate to orders page
-        navigate('/orders');
-      } else {
-        console.error('❌ Payment failed:', response.data.message);
-        alert('Payment failed. Please try again.');
-      }
 
+        // Navigate to orders page
+        navigate("/orders");
+      } else {
+        console.error("❌ Payment failed:", response.data.message);
+        alert("Payment failed. Please try again.");
+      }
     } catch (error) {
-      console.error('❌ Checkout error:', error);
-      alert('An error occurred during checkout. Please try again.');
+      console.error("❌ Checkout error:", error);
+      alert("An error occurred during checkout. Please try again.");
     }
   };
 
@@ -86,9 +104,16 @@ const Cart = () => {
           className="text-center"
         >
           <div className="text-8xl mb-6">🛒</div>
-          <h2 className="text-3xl font-bold text-gray-700 mb-4">Your cart is empty</h2>
-          <p className="text-xl text-gray-500 mb-8">Add some delicious items to get started!</p>
-          <Link to="/restaurants" className="btn-primary text-lg px-8 py-4 inline-flex items-center">
+          <h2 className="text-3xl font-bold text-gray-700 mb-4">
+            Your cart is empty
+          </h2>
+          <p className="text-xl text-gray-500 mb-8">
+            Add some delicious items to get started!
+          </p>
+          <Link
+            to="/restaurants"
+            className="btn-primary text-lg px-8 py-4 inline-flex items-center"
+          >
             <ShoppingBag className="mr-2 h-5 w-5" />
             Browse Restaurants
           </Link>
@@ -145,18 +170,22 @@ const Cart = () => {
                     <div className="w-16 h-16 bg-gradient-to-br from-orange-400 to-amber-400 rounded-xl flex items-center justify-center">
                       <div className="text-2xl opacity-50">🍽️</div>
                     </div>
-                    
+
                     <div className="flex-1">
                       <h3 className="font-semibold text-lg">{item.name}</h3>
-                      <p className="text-gray-600 text-sm">{item.description}</p>
+                      <p className="text-gray-600 text-sm">
+                        {item.description}
+                      </p>
                       <div className="text-orange-600 font-bold">
                         ₹{item.price} each
                       </div>
                     </div>
-                    
+
                     <div className="flex items-center space-x-3">
                       <button
-                        onClick={() => updateQuantity(item._id, item.quantity - 1)}
+                        onClick={() =>
+                          updateQuantity(item._id, item.quantity - 1)
+                        }
                         className="w-8 h-8 bg-gray-200 hover:bg-gray-300 rounded-full flex items-center justify-center transition-colors duration-200"
                       >
                         <Minus className="h-4 w-4" />
@@ -165,16 +194,18 @@ const Cart = () => {
                         {item.quantity}
                       </span>
                       <button
-                        onClick={() => updateQuantity(item._id, item.quantity + 1)}
+                        onClick={() =>
+                          updateQuantity(item._id, item.quantity + 1)
+                        }
                         className="w-8 h-8 bg-orange-500 hover:bg-orange-600 text-white rounded-full flex items-center justify-center transition-colors duration-200"
                       >
                         <Plus className="h-4 w-4" />
                       </button>
                     </div>
-                    
+
                     <div className="text-right">
                       <div className="font-bold text-lg">
-                        ₹{(item.price * item.quantity)}
+                        ₹{item.price * item.quantity}
                       </div>
                       <button
                         onClick={() => removeFromCart(item._id)}
@@ -198,7 +229,7 @@ const Cart = () => {
               className="glass-card rounded-2xl p-6 sticky top-24"
             >
               <h2 className="text-2xl font-bold mb-6">Order Summary</h2>
-              
+
               <div className="space-y-4 mb-6">
                 <div className="flex justify-between">
                   <span>Subtotal</span>
@@ -219,7 +250,7 @@ const Cart = () => {
                   </div>
                 </div>
               </div>
-              
+
               <div className="space-y-4">
                 <button
                   onClick={handleCheckout}
@@ -229,7 +260,7 @@ const Cart = () => {
                   <span>Proceed to Checkout</span>
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </button>
-                
+
                 <Link
                   to="/restaurants"
                   className="w-full btn-secondary flex items-center justify-center"
@@ -238,17 +269,21 @@ const Cart = () => {
                   <span>Continue Shopping</span>
                 </Link>
               </div>
-              
+
               <div className="mt-6 p-4 bg-green-50 rounded-xl">
                 <div className="flex items-center space-x-2 text-green-700">
                   <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                  <span className="font-medium">Free delivery on orders over ₹500</span>
+                  <span className="font-medium">
+                    Free delivery on orders over ₹500
+                  </span>
                 </div>
               </div>
 
               {/* Payment Info */}
               <div className="mt-4 p-4 bg-blue-50 rounded-xl">
-                <h4 className="font-semibold text-blue-800 mb-2">Payment Details</h4>
+                <h4 className="font-semibold text-blue-800 mb-2">
+                  Payment Details
+                </h4>
                 <div className="text-blue-700 text-sm space-y-1">
                   <div>• Secure payment processing</div>
                   <div>• Multiple payment options</div>
