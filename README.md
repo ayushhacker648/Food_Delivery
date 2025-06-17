@@ -17,5 +17,5 @@
 - 🚀 Node.js + Express.js
 - 🗄️ MongoDB + Mongoose
 - 🔐 JWT Authentication
-- 🌐 CORS
+
 
