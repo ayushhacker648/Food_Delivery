@@ -9,6 +9,9 @@ const restaurantRoutes = require('./routes/restaurants');
 const menuRoutes = require('./routes/menu');
 const orderRoutes = require('./routes/orders');
 
+// Import seed function
+const { seedDatabase } = require('./seed-data');
+
 dotenv.config();
 
 const app = express();
@@ -45,6 +48,18 @@ const connectDB = async () => {
     
     dbConnected = true;
     console.log('✅ Connected to MongoDB successfully');
+    
+    // Check if database is empty and seed if needed
+    const Restaurant = require('./models/Restaurant');
+    const restaurantCount = await Restaurant.countDocuments();
+    
+    if (restaurantCount === 0) {
+      console.log('📦 Database appears to be empty, seeding with sample data...');
+      await seedDatabase();
+    } else {
+      console.log(`📊 Found ${restaurantCount} restaurants in database`);
+    }
+    
   } catch (error) {
     console.log('❌ MongoDB connection failed:', error.message);
     console.log('');
@@ -93,6 +108,67 @@ app.use('/api/auth', checkDbConnection, authRoutes);
 app.use('/api/restaurants', checkDbConnection, restaurantRoutes);
 app.use('/api/menu', checkDbConnection, menuRoutes);
 app.use('/api/orders', checkDbConnection, orderRoutes);
+
+// Payment processing endpoint
+app.post('/api/payment/process', checkDbConnection, async (req, res) => {
+  try {
+    const { 
+      amount, 
+      currency, 
+      paymentMethod, 
+      customerInfo, 
+      orderData 
+    } = req.body;
+
+    console.log('💳 Payment Processing Request:');
+    console.log('Amount:', amount, currency);
+    console.log('Payment Method:', paymentMethod);
+    console.log('Customer:', customerInfo);
+    console.log('Order Data:', orderData);
+
+    // Simulate payment processing
+    const paymentResult = {
+      success: true,
+      transactionId: `TXN${Date.now()}${Math.floor(Math.random() * 1000)}`,
+      amount: amount,
+      currency: currency,
+      paymentMethod: paymentMethod,
+      status: 'completed',
+      timestamp: new Date().toISOString(),
+      customerInfo: customerInfo,
+      orderData: orderData
+    };
+
+    // Log payment success
+    console.log('✅ Payment Processed Successfully:');
+    console.log('Transaction ID:', paymentResult.transactionId);
+    console.log('Status:', paymentResult.status);
+
+    res.json({
+      success: true,
+      message: 'Payment processed successfully',
+      payment: paymentResult
+    });
+
+  } catch (error) {
+    console.error('❌ Payment processing error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Payment processing failed',
+      error: error.message
+    });
+  }
+});
+
+// Seed database endpoint (for manual seeding)
+app.post('/api/seed', checkDbConnection, async (req, res) => {
+  try {
+    await seedDatabase();
+    res.json({ message: 'Database seeded successfully!' });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to seed database', details: error.message });
+  }
+});
 
 // Graceful shutdown
 process.on('SIGINT', async () => {

@@ -3,7 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import axios from 'axios';
 import { useCart } from '../contexts/CartContext';
-import { Star, Clock, Truck, MapPin, Phone, Plus, Minus, ShoppingCart } from 'lucide-react';
+import { Star, Clock, Truck, MapPin, Phone, Plus, Minus, ShoppingCart, Check } from 'lucide-react';
 
 const RestaurantDetail = () => {
   const { id } = useParams();
@@ -13,6 +13,7 @@ const RestaurantDetail = () => {
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [quantities, setQuantities] = useState({});
+  const [addedToCart, setAddedToCart] = useState({});
 
   const categories = ['all', 'appetizer', 'main', 'dessert', 'beverage', 'special'];
 
@@ -60,6 +61,12 @@ const RestaurantDetail = () => {
     const quantity = quantities[item._id] || 1;
     addToCart(item, quantity);
     setQuantities(prev => ({ ...prev, [item._id]: 0 }));
+    
+    // Show success feedback
+    setAddedToCart(prev => ({ ...prev, [item._id]: true }));
+    setTimeout(() => {
+      setAddedToCart(prev => ({ ...prev, [item._id]: false }));
+    }, 2000);
   };
 
   const getCategoryEmoji = (category) => {
@@ -158,7 +165,7 @@ const RestaurantDetail = () => {
                   </div>
                   <div>
                     <div className="font-semibold">
-                      ${restaurant.deliveryFee?.toFixed(2) || '2.99'}
+                      ₹{restaurant.deliveryFee || 49}
                     </div>
                     <div className="text-sm text-gray-500">Delivery fee</div>
                   </div>
@@ -194,6 +201,8 @@ const RestaurantDetail = () => {
                   {restaurant.cuisine?.[0] === 'Mexican' && '🌮'}
                   {restaurant.cuisine?.[0] === 'Indian' && '🍛'}
                   {restaurant.cuisine?.[0] === 'Thai' && '🍜'}
+                  {restaurant.cuisine?.[0] === 'Japanese' && '🍣'}
+                  {restaurant.cuisine?.[0] === 'American' && '🍔'}
                   {!restaurant.cuisine?.[0] && '🍽️'}
                 </div>
               </div>
@@ -290,8 +299,18 @@ const RestaurantDetail = () => {
                           </div>
                         )}
                         
-                        <div className="text-2xl font-bold text-orange-600">
-                          ${item.price.toFixed(2)}
+                        <div className="flex items-center space-x-2 mb-3">
+                          <div className="text-2xl font-bold text-orange-600">
+                            ₹{item.price}
+                          </div>
+                          {item.rating && (
+                            <div className="flex items-center space-x-1">
+                              <Star className="h-4 w-4 text-yellow-500 fill-current" />
+                              <span className="text-sm text-gray-600">
+                                {item.rating.toFixed(1)} ({item.reviewCount})
+                              </span>
+                            </div>
+                          )}
                         </div>
                       </div>
                       
@@ -325,13 +344,24 @@ const RestaurantDetail = () => {
                         onClick={() => handleAddToCart(item)}
                         disabled={!quantities[item._id]}
                         className={`flex items-center space-x-2 px-4 py-2 rounded-xl font-medium transition-all duration-200 ${
-                          quantities[item._id]
+                          addedToCart[item._id]
+                            ? 'bg-green-500 text-white'
+                            : quantities[item._id]
                             ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white hover:shadow-lg transform hover:-translate-y-1'
                             : 'bg-gray-200 text-gray-500 cursor-not-allowed'
                         }`}
                       >
-                        <ShoppingCart className="h-4 w-4" />
-                        <span>Add to Cart</span>
+                        {addedToCart[item._id] ? (
+                          <>
+                            <Check className="h-4 w-4" />
+                            <span>Added!</span>
+                          </>
+                        ) : (
+                          <>
+                            <ShoppingCart className="h-4 w-4" />
+                            <span>Add to Cart</span>
+                          </>
+                        )}
                       </button>
                     </div>
                   </motion.div>
